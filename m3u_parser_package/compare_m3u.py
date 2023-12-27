@@ -24,3 +24,4 @@ def shrink_m3u(txt_file_path, m3u_file_path, output_file_path, callback, similar
                 record = line  # start a new record
             else:
                 record += line  # add to current record
+        callback("Processing finished", "info")
