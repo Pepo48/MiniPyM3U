@@ -25,6 +25,7 @@ def process_file():
     m3u_file_path = select_file()
     txt_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "m3u_parser_package", "resources", "sports-channels-db.txt")
     output_file_path = "output.m3u"
+    similarity = int(similarity_value.get())
 
     def is_scrollbar_at_bottom(text_widget):
         last_visible_index = text_widget.index("@0,%d" % text_widget.winfo_height())
@@ -42,7 +43,7 @@ def process_file():
             log.see(tk.END)
         root.update()
 
-    shrink_m3u(txt_file_path, m3u_file_path, output_file_path, callback)
+    shrink_m3u(txt_file_path, m3u_file_path, output_file_path, callback, similarity)
 
 root = tk.Tk()
 auto_scroll = tk.BooleanVar(root)
@@ -63,4 +64,8 @@ button = tk.Button(root, text="Select M3U file", command=process_file)
 button.pack()
 checkbox = tk.Checkbutton(root, text="Show failed matches", variable=show_fail)
 checkbox.pack()
+similarity_value = tk.StringVar(root)
+similarity_value.set("90")  # default value
+similarity_entry = tk.Entry(root, textvariable=similarity_value)
+similarity_entry.pack()
 root.mainloop()

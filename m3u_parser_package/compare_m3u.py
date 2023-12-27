@@ -1,7 +1,7 @@
 import sys
 from fuzzywuzzy import fuzz
 
-def shrink_m3u(txt_file_path, m3u_file_path, output_file_path, callback):
+def shrink_m3u(txt_file_path, m3u_file_path, output_file_path, callback, similarity):
     # Read the text file and store channel names in a list
     with open(txt_file_path, 'r') as txt_file:
         channels = [line.strip() for line in txt_file]
@@ -14,8 +14,8 @@ def shrink_m3u(txt_file_path, m3u_file_path, output_file_path, callback):
                 if record:  # if record is not empty, process it
                     name_part = record.split("\n")[0].split(",")[-1].strip() if "," in record else ""
                     for channel in channels:
-                        similarity = fuzz.token_set_ratio(channel, name_part)
-                        if similarity >= 80:
+                        similarity_score = fuzz.token_set_ratio(channel, name_part)
+                        if similarity_score >= similarity:
                             output_file.write(record)
                             callback(f'Successful match: {name_part} with {channel} (similarity: {similarity})\n', "success")
                             break
