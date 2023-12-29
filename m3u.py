@@ -2,7 +2,7 @@ import argparse, requests, logging, urllib.request
 from fuzzywuzzy import fuzz
 
 def check_m3u_files(m3u_files, channel_names, similarity_ratio):
-    valid_records = []
+    records = set()
     for file in m3u_files:
         if file.startswith('http://') or file.startswith('https://'):
             # If the file is a URL, download it
@@ -17,24 +17,30 @@ def check_m3u_files(m3u_files, channel_names, similarity_ratio):
 
         record = []
         for line in lines:
-                line = line.strip()
-                if line.startswith('#EXTINF'):
-                    if record:  # if record is not empty
-                        channel_name_in_record = record[0].split(',', 1)[-1].strip()  # extract the channel name
-                        url_in_record = record[-1]  # extract the URL
-                        for channel_name in channel_names:
-                            similarity = fuzz.token_set_ratio(channel_name_in_record, channel_name)
-                            if similarity >= similarity_ratio:
-                                try:
-                                    response = requests.head(url_in_record)
-                                    if response.status_code == 200:
-                                        valid_records.append('\n'.join(record))
-                                        logging.info(f'Added to the output file: {channel_name_in_record} compared to {channel_name} with a similarity ratio of {similarity}')
-                                except requests.exceptions.RequestException as e:
-                                    logging.debug(f'An error occurred while checking {url_in_record}: {e}')
-                    record = [line]  # start a new record
-                else:
-                    record.append(line)
+            line = line.strip()
+            if line.startswith('#EXTINF'):
+                if record:  # if record is not empty
+                    records.add(tuple(record))
+                record = [line]  # start a new record
+            else:
+                record.append(line)
+        if record:  # add the last record
+            records.add(tuple(record))
+
+    valid_records = []
+    for record in records:
+        channel_name_in_record = record[0].split(',', 1)[-1].strip()  # extract the channel name
+        url_in_record = record[-1]  # extract the URL
+        for channel_name in channel_names:
+            similarity = fuzz.token_set_ratio(channel_name_in_record, channel_name)
+            if similarity >= similarity_ratio:
+                try:
+                    response = requests.head(url_in_record)
+                    if response.status_code == 200:
+                        valid_records.append(list(record))
+                        logging.info(f'Added to the output file: {channel_name_in_record} compared to {channel_name} with a similarity ratio of {similarity}')
+                except requests.exceptions.RequestException as e:
+                    logging.debug(f'An error occurred while checking {url_in_record}: {e}')
     return valid_records
 
 # Create the parser
@@ -71,4 +77,4 @@ valid_records = check_m3u_files(m3u_files, args.channel_names, args.similarity_r
 with open(args.output_file, 'w') as f:
     f.write('#EXTM3U\n')  # add #EXTM3U to the beginning of the file
     for record in valid_records:
-        f.write(record + '\n')
+        f.write('\n'.join(record) + '\n')
