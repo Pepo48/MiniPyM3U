@@ -21,7 +21,7 @@ def check_m3u_files(m3u_files, channel_names, similarity_ratio):
                                     response = requests.head(url_in_record)
                                     if response.status_code == 200:
                                         valid_records.append('\n'.join(record))
-                                        logging.debug(f'Added {url_in_record} to valid records.')
+                                        logging.info(f'Added to the output file: {channel_name_in_record} compared to {channel_name} with a similarity ratio of {similarity}')
                                 except requests.exceptions.RequestException as e:
                                     logging.debug(f'An error occurred while checking {url_in_record}: {e}')
                     record = [line]  # start a new record
@@ -34,8 +34,8 @@ parser = argparse.ArgumentParser(description="Check M3U files")
 
 # Add the arguments
 parser.add_argument('-f', '--files', nargs='+', required=True, help='The M3U files to check')
-parser.add_argument('-c', '--channel-names', nargs='+', required=True, help='The channel names to compare')
-parser.add_argument('-r', '--similarity-ratio', type=int, default=65, help='The similarity ratio')
+parser.add_argument('-c', '--channel-name', nargs='+', required=True, help='The channel names to compare')
+parser.add_argument('-r', '--similarity-ratio', type=int, default=70, help='The similarity ratio')
 parser.add_argument('-o', '--output-file', required=True, help='The output M3U file')
 parser.add_argument('-d', '--debug', action='store_true', help='Enable debug info')
 

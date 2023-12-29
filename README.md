@@ -18,8 +18,8 @@ python m3u.py -f file1.m3u file2.m3u -c channel1 channel2 -o output.m3u
 ```
 
 ### Arguments
-* -f, --files: The M3U files to check
-* -c, --channel-names: The channel names to compare, e.g. TNT Sports, BT Sports, Premier Sports, Peacock, Sky Sports, SuperSport, BBC One
+* -f, --file: The M3U file to check
+* -c, --channel-name: The channel name to compare, e.g. TNT Sports, BT Sports, Premier Sports, Peacock, Sky Sports, SuperSport, BBC One
 * -r, --similarity-ratio: The similarity ratio (default is 65)
 * -o, --output-file: The output M3U file
 * -d, --debug: Enable debug info
