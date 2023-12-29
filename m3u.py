@@ -1,14 +1,22 @@
-import argparse
-import requests
+import argparse, requests, logging, urllib.request
 from fuzzywuzzy import fuzz
-import logging
 
 def check_m3u_files(m3u_files, channel_names, similarity_ratio):
     valid_records = []
     for file in m3u_files:
-        with open(file, 'r') as f:
-            record = []
-            for line in f:
+        if file.startswith('http://') or file.startswith('https://'):
+            # If the file is a URL, download it
+            response = urllib.request.urlopen(file)
+            data = response.read()      # a `bytes` object
+            text = data.decode('utf-8') # a `str`; this step can't be used if data is binary
+            lines = text.split('\n')
+        else:
+            # If the file is a file path, read it
+            with open(file, 'r') as f:
+                lines = f.readlines()
+
+        record = []
+        for line in lines:
                 line = line.strip()
                 if line.startswith('#EXTINF'):
                     if record:  # if record is not empty
@@ -33,8 +41,9 @@ def check_m3u_files(m3u_files, channel_names, similarity_ratio):
 parser = argparse.ArgumentParser(description="Check M3U files")
 
 # Add the arguments
-parser.add_argument('-f', '--files', nargs='+', required=True, help='The M3U files to check')
-parser.add_argument('-c', '--channel-name', nargs='+', required=True, help='The channel names to compare')
+parser.add_argument('-f', '--files', nargs='+', help='The M3U files to check')
+parser.add_argument('-u', '--urls', nargs='+', help='The M3U URLs to check')
+parser.add_argument('-c', '--channel-names', nargs='+', required=True, help='The channel names to compare')
 parser.add_argument('-r', '--similarity-ratio', type=int, default=70, help='The similarity ratio')
 parser.add_argument('-o', '--output-file', required=True, help='The output M3U file')
 parser.add_argument('-d', '--debug', action='store_true', help='Enable debug info')
@@ -42,13 +51,21 @@ parser.add_argument('-d', '--debug', action='store_true', help='Enable debug inf
 # Parse the arguments
 args = parser.parse_args()
 
+# Check if at least one of --files or --urls is specified
+if args.files is None and args.urls is None:
+    parser.error('At least one of --files or --urls must be specified')
+
+# Combine the file paths and the URLs
+m3u_files = args.files if args.files else []
+m3u_files.extend(args.urls if args.urls else [])
+
 # Set the logging level based on the debug flag
 if args.debug:
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
 
-valid_records = check_m3u_files(args.files, args.channel_names, args.similarity_ratio)
+valid_records = check_m3u_files(m3u_files, args.channel_names, args.similarity_ratio)
 
 # Write the valid records to the output file
 with open(args.output_file, 'w') as f:
