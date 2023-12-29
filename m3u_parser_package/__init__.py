@@ -1,1 +1,0 @@
-from .compare_m3u import shrink_m3u
