@@ -1,6 +1,8 @@
 # MiniPyM3U
 
-This project is a Python script that checks M3U files and compares channel names based on a similarity ratio.
+![Screenshot of the GUI](images/app.png)
+
+This project is a simple Python application that checks the channels in an M3U file against a list of channel names based on the similarity ratio using Levenshtein distance algorithm.
 
 ## Installation
 
@@ -12,29 +14,43 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the script with the required arguments:
-```sh
-python m3u.py -f file1.m3u file2.m3u -c channel1 channel2 -o output.m3u
-```
+You can either run the GUI application or the script via the terminal.
 
-### Arguments
-* -f, --files: The M3U file to check
-* -u, --urls: The URL of the M3U file to check
-* -c, --channel-names: The channel name to compare, e.g. TNT Sports, BT Sports, Premier Sports, Peacock, Sky Sports, SuperSport, BBC One
-* -r, --similarity-ratio: The similarity ratio (default is 65)
-* -o, --output-file: The output M3U file
-* -d, --debug: Enable debug info
+### GUI
 
-To use this package, run the `app.py` script:
+To run the GUI, use the following command:
+
 ```sh
 python app.py
 ```
 
-This will open a GUI where you can select an M3U file to process. The processed file will be saved as `output.m3u` in the project root directory.
+### Script
+
+To run the script, use the following command:
+
+```sh
+python m3u.py -f file1.m3u file2.m3u -c channel1 channel2 -o output.m3u
+```
+
+#### Arguments
+
+```
+-f, --files: The M3U file to check
+-u, --urls: The URL of the M3U file to check
+-c, --channel-names: The channel name to compare
+-r, --similarity-ratio: The similarity ratio (default is 95)
+-o, --output-file: The output M3U file
+-d, --debug: Enable debug info
+```
+
 
 ## Testing
 
-To run the tests, use the `test.m3u` file in the `tests` directory.
+To run the tests, use the following command:
+
+```sh
+python -m unittest discover
+```
 
 ## Contributing
 
