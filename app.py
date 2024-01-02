@@ -2,16 +2,16 @@ from PIL import Image
 Image.CUBIC = Image.BICUBIC
 from tkinter import filedialog, TclError
 import ttkbootstrap as tb
-import subprocess
+import subprocess, os
 
 def on_generate_button_click():
     # Get the values from the views
-    files = [list_view.item(i, 'values')[0] for i in list_view.get_children()]
+    sources = [sources_view.item(i, 'values')[0] for i in sources_view.get_children()]
     channel_names = [channels_view.item(i, 'values')[0] for i in channels_view.get_children()]
     similarity_ratio = meter.amountusedvar.get()
 
     # Convert the lists to strings with quotes around each item
-    files_str = ' '.join(f'"{file}"' for file in files)
+    files_str = ' '.join(f'"{file}"' for file in sources)
     channel_names_str = ' '.join(f'"{channel_name}"' for channel_name in channel_names)
 
     # Prepare the command
@@ -32,12 +32,12 @@ def on_generate_button_click():
 def add_file():
     file_path = filedialog.askopenfilename(filetypes=[('M3U files', '*.m3u')])
     if file_path:
-        list_view.insert('', 'end', values=(file_path,))
+        sources_view.insert('', 'end', values=(file_path,))
 
 def add_url():
     url = url_entry.get()
     if url:
-        list_view.insert('', 'end', values=(url,))
+        sources_view.insert('', 'end', values=(url,))
         url_entry.delete(0, 'end')
 
 def add_channel():
@@ -48,12 +48,12 @@ def add_channel():
 
 def delete_selected():
     # Get selected items
-    selected_item_list_view = list_view.selection()
+    selected_item_list_view = sources_view.selection()
     selected_item_channels_view = channels_view.selection()
 
     # Delete selected item from list_view
     if selected_item_list_view:
-        list_view.delete(selected_item_list_view)
+        sources_view.delete(selected_item_list_view)
 
     # Delete selected item from channels_view
     if selected_item_channels_view:
@@ -67,7 +67,7 @@ def paste_text(event):
         text = text.split('\n')[0]
         url_entry.delete(0, 'end')
         url_entry.insert(0, text)
-        if event.widget == list_view:
+        if event.widget == sources_view:
             add_url()  # Call add_url if the event occurred on list_view
         elif event.widget == channels_view:
             add_channel()  # Call add_channel if the event occurred on channels_view
@@ -125,21 +125,32 @@ delete_button = tb.Button(root, text="Delete Selected", command=delete_selected)
 delete_button.grid(row=1, column=2, columnspan=3, padx=10, pady=10)
 
 # List view
-list_view = tb.Treeview(root, columns=('Source',), show='headings')
-list_view.heading('Source', text='M3U Source')
-list_view.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky='nsew')
+sources_view = tb.Treeview(root, columns=('Source',), show='headings')
+sources_view.heading('Source', text='M3U Source')
+sources_view.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky='nsew')
 
 # Channels view
 channels_view = tb.Treeview(root, columns=('Channels',), show='headings')
 channels_view.heading('Channels', text='Channels')
 channels_view.grid(row=2, column=2, columnspan=2, padx=10, pady=10, sticky='nsew')
 
+# Check if the file exists
+if os.path.exists('channels.txt'):
+    # Open the file
+    with open('channels.txt', 'r') as file:
+        # Read the content line by line
+        for line in file:
+            # Remove the newline character at the end of the line
+            channel_name = line.rstrip('\n')
+            # Insert the channel name into channels_view
+            channels_view.insert('', 'end', values=(channel_name,))
+
 # Generate M3U Playlist button
 generate_button = tb.Button(root, text="Generate M3U Playlist", command=on_generate_button_click)
 generate_button.grid(row=3, column=1, columnspan=2, padx=10, pady=10)
 
 # Bind the context menu to the list_view and channels_view
-list_view.bind("<Button-3>", show_context_menu)
+sources_view.bind("<Button-3>", show_context_menu)
 channels_view.bind("<Button-3>", show_context_menu)
 # Bind Ctrl+V to paste_text function
 root.bind('<Control-v>', paste_text)
