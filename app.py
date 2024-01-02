@@ -20,11 +20,13 @@ def on_generate_button_click():
         "--urls", files_str,
         "--channel-names", channel_names_str,
         "--similarity-ratio", str(similarity_ratio),
-        "--output-file", "output.m3u"
+        "--output-file", "output.m3u",
+        "--debug"
     ]
 
     # Convert the command list to a string
     command_str = ' '.join(command)
+    print(f'Executing command: {command_str}')
 
     # Execute the command
     subprocess.run(command_str, check=True, shell=True)

@@ -6,10 +6,21 @@ def check_m3u_files(m3u_files, channel_names, similarity_ratio):
     for file in m3u_files:
         if file.startswith('http://') or file.startswith('https://'):
             # If the file is a URL, download it
-            response = urllib.request.urlopen(file)
-            data = response.read()      # a `bytes` object
-            text = data.decode('utf-8') # a `str`; this step can't be used if data is binary
-            lines = text.split('\n')
+            try:
+                response = urllib.request.urlopen(file)
+            except urllib.error.HTTPError as e:
+                if e.code == 404:
+                    logging.info(f"The file {file} was not found.")
+                else:
+                    logging.debug(f"An HTTP error occurred when trying to access {file}.")
+                continue
+            except urllib.error.URLError as e:
+                logging.debug(f"A URL error occurred when trying to access {file}.")
+                continue
+            else:
+                data = response.read()      # a `bytes` object
+                text = data.decode('utf-8') # a `str`; this step can't be used if data is binary
+                lines = text.split('\n')
         else:
             # If the file is a file path, read it
             with open(file, 'r') as f:
@@ -35,12 +46,13 @@ def check_m3u_files(m3u_files, channel_names, similarity_ratio):
             similarity = fuzz.token_set_ratio(channel_name_in_record, channel_name)
             if similarity >= similarity_ratio:
                 try:
-                    response = requests.head(url_in_record)
-                    if response.status_code == 200:
+                    #response = requests.head(url_in_record, timeout=5)
+                    #if response.status_code == 200:
                         valid_records.append(list(record))
                         logging.info(f'Added to the output file: {channel_name_in_record} compared to {channel_name} with a similarity ratio of {similarity}')
                 except requests.exceptions.RequestException as e:
                     logging.debug(f'An error occurred while checking {url_in_record}: {e}')
+    logging.info(f'Found {len(valid_records)} valid records')
     return valid_records
 
 # Create the parser
