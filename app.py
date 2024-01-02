@@ -2,6 +2,32 @@ from PIL import Image
 Image.CUBIC = Image.BICUBIC
 from tkinter import filedialog, TclError
 import ttkbootstrap as tb
+import subprocess
+
+def on_generate_button_click():
+    # Get the values from the views
+    files = [list_view.item(i, 'values')[0] for i in list_view.get_children()]
+    channel_names = [channels_view.item(i, 'values')[0] for i in channels_view.get_children()]
+    similarity_ratio = meter.amountusedvar.get()
+
+    # Convert the lists to strings with quotes around each item
+    files_str = ' '.join(f'"{file}"' for file in files)
+    channel_names_str = ' '.join(f'"{channel_name}"' for channel_name in channel_names)
+
+    # Prepare the command
+    command = [
+        "python", "m3u.py",
+        "--urls", files_str,
+        "--channel-names", channel_names_str,
+        "--similarity-ratio", str(similarity_ratio),
+        "--output-file", "output.m3u"
+    ]
+
+    # Convert the command list to a string
+    command_str = ' '.join(command)
+
+    # Execute the command
+    subprocess.run(command_str, check=True, shell=True)
 
 def add_file():
     file_path = filedialog.askopenfilename(filetypes=[('M3U files', '*.m3u')])
@@ -87,7 +113,7 @@ meter = tb.Meter(
     interactive=True,
     subtext="similarity ratio",
 )
-meter.configure(amountused = 70)
+meter.configure(amountused = 95)
 meter.grid(row=1, column=0, padx=10, pady=10)
 
 # Button to add file
@@ -107,6 +133,10 @@ list_view.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky='nsew')
 channels_view = tb.Treeview(root, columns=('Channels',), show='headings')
 channels_view.heading('Channels', text='Channels')
 channels_view.grid(row=2, column=2, columnspan=2, padx=10, pady=10, sticky='nsew')
+
+# Generate M3U Playlist button
+generate_button = tb.Button(root, text="Generate M3U Playlist", command=on_generate_button_click)
+generate_button.grid(row=3, column=1, columnspan=2, padx=10, pady=10)
 
 # Bind the context menu to the list_view and channels_view
 list_view.bind("<Button-3>", show_context_menu)
