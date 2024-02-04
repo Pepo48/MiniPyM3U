@@ -2,9 +2,18 @@ from PIL import Image
 Image.CUBIC = Image.BICUBIC
 from tkinter import filedialog, TclError
 import ttkbootstrap as tb
-import subprocess, os
+import subprocess, os, datetime
 
 def on_generate_button_click():
+
+    # Open a file dialog to select the output file
+    now = datetime.datetime.now()
+    initial_file_name = f"output_{now.strftime('%Y-%m-%d-%H-%M-%S')}.m3u"
+    output_file = filedialog.asksaveasfilename(initialfile=initial_file_name, filetypes=[('M3U files', '*.m3u')], defaultextension='.m3u')
+    # If the dialog is closed without selecting a file, output_file will be an empty string
+    if not output_file:
+        return
+    
     # Get the values from the views
     sources = [sources_view.item(i, 'values')[0] for i in sources_view.get_children()]
     channel_names = [channels_view.item(i, 'values')[0] for i in channels_view.get_children()]
@@ -20,7 +29,7 @@ def on_generate_button_click():
         "--urls", files_str,
         "--channel-names", channel_names_str,
         "--similarity-ratio", str(similarity_ratio),
-        # "--output-file", "output.m3u",
+        "--output-file", output_file,
         "--debug"
     ]
 
