@@ -41,9 +41,10 @@ def on_generate_button_click():
     subprocess.run(command_str, check=True, shell=True)
 
 def add_file():
-    file_path = filedialog.askopenfilename(filetypes=[('M3U files', '*.m3u')])
-    if file_path:
-        sources_view.insert('', 'end', values=(file_path,))
+    file_paths = filedialog.askopenfilenames(filetypes=[('M3U files', '*.m3u')])
+    for file_path in file_paths:
+        if file_path:
+            sources_view.insert('', 'end', values=(file_path,))
 
 def add_url():
     url = url_entry.get()
