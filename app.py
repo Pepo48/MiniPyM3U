@@ -20,7 +20,7 @@ def on_generate_button_click():
         "--urls", files_str,
         "--channel-names", channel_names_str,
         "--similarity-ratio", str(similarity_ratio),
-        "--output-file", "output.m3u",
+        # "--output-file", "output.m3u",
         "--debug"
     ]
 

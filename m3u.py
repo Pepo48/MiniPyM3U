@@ -1,4 +1,4 @@
-import argparse, requests, logging, urllib.request
+import argparse, requests, logging, urllib.request, datetime
 from fuzzywuzzy import fuzz
 
 def check_m3u_files(m3u_files, channel_names, similarity_ratio):
@@ -63,7 +63,7 @@ parser.add_argument('-f', '--files', nargs='+', help='The M3U files to check')
 parser.add_argument('-u', '--urls', nargs='+', help='The M3U URLs to check')
 parser.add_argument('-c', '--channel-names', nargs='+', required=True, help='The channel names to compare')
 parser.add_argument('-r', '--similarity-ratio', type=int, default=95, help='The similarity ratio')
-parser.add_argument('-o', '--output-file', required=True, help='The output M3U file')
+parser.add_argument('-o', '--output-file', help='The output M3U file')
 parser.add_argument('-d', '--debug', action='store_true', help='Enable debug info')
 
 # Parse the arguments
@@ -72,6 +72,11 @@ args = parser.parse_args()
 # Check if at least one of --files or --urls is specified
 if args.files is None and args.urls is None:
     parser.error('At least one of --files or --urls must be specified')
+
+# If the output file is not specified, attach the current date and time to the output file name
+if args.output_file is None:
+    now = datetime.datetime.now()
+    args.output_file = f"output_{now.strftime('%Y-%m-%d-%H-%M-%S')}.m3u"
 
 # Combine the file paths and the URLs
 m3u_files = args.files if args.files else []
