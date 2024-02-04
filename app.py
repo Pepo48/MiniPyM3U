@@ -59,16 +59,16 @@ def add_channel():
 
 def delete_selected():
     # Get selected items
-    selected_item_list_view = sources_view.selection()
-    selected_item_channels_view = channels_view.selection()
+    selected_items_list_view = sources_view.selection()
+    selected_items_channels_view = channels_view.selection()
 
-    # Delete selected item from list_view
-    if selected_item_list_view:
-        sources_view.delete(selected_item_list_view)
+    # Delete selected items from list_view
+    for item in selected_items_list_view:
+        sources_view.delete(item)
 
-    # Delete selected item from channels_view
-    if selected_item_channels_view:
-        channels_view.delete(selected_item_channels_view)
+    # Delete selected items from channels_view
+    for item in selected_items_channels_view:
+        channels_view.delete(item)
 
 # Function to paste text from the clipboard
 def paste_text(event):
