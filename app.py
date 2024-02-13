@@ -2,7 +2,7 @@ from PIL import Image
 Image.CUBIC = Image.BICUBIC
 from tkinter import filedialog, TclError, font as tkFont
 import ttkbootstrap as tb
-import subprocess, datetime
+import subprocess, os, datetime
 
 def on_generate_button_click():
 
@@ -152,6 +152,17 @@ sources_view.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 channels_view = tb.Treeview(frame3, columns=('Channels',), show='headings')
 channels_view.heading('Channels', text='Channels')
 channels_view.grid(row=0, column=1, padx=10, pady=10, sticky='nsew')
+
+# Check if the file exists
+if os.path.exists('channels.txt'):
+    # Open the file
+    with open('channels.txt', 'r') as file:
+        # Read the content line by line
+        for line in file:
+            # Remove the newline character at the end of the line
+            channel_name = line.rstrip('\n')
+            # Insert the channel name into channels_view
+            channels_view.insert('', 'end', values=(channel_name,))
 
 # Generate M3U Playlist button
 generate_button = tb.Button(root, text="Generate M3U Playlist", command=on_generate_button_click)
