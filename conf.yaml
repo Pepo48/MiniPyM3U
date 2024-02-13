@@ -1,0 +1,13 @@
+channels:
+  - TNT Sports
+  - BT Sports
+  - Premier Sports
+  - Peacock
+  - Sky Sports
+  - SuperSport
+  - BBC One
+
+ssh:
+  host: 
+  user: 
+  password: 
