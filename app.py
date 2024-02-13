@@ -1,8 +1,8 @@
 from PIL import Image
 Image.CUBIC = Image.BICUBIC
-from tkinter import filedialog, TclError
+from tkinter import filedialog, TclError, font as tkFont
 import ttkbootstrap as tb
-import subprocess, os, datetime
+import subprocess, datetime
 
 def on_generate_button_click():
 
@@ -97,6 +97,10 @@ def show_context_menu(event):
 root = tb.Window(themename='lumen')  # Change the theme
 root.geometry('800x600')
 root.title('MiniPyM3U')
+
+# Change the default font size
+default_font = tkFont.nametofont("TkDefaultFont")
+default_font.configure(size=13)
 
 # Create frames
 frame1 = tb.Frame(root)
