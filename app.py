@@ -94,30 +94,37 @@ def show_context_menu(event):
     context_menu.add_command(label="Paste Text", command=lambda: paste_text(event))  # Add paste_text command
     context_menu.post(event.x_root, event.y_root)
 
-root = tb.Window(themename='lumen')
+root = tb.Window(themename='lumen')  # Change the theme
 root.geometry('800x600')
 root.title('MiniPyM3U')
-root.style.configure('TButton', font=('Helvetica', 14))  # Increase font size for buttons
-root.style.configure('TEntry', font=('Helvetica', 14))  # Increase font size for entry fields
 
-# Create a context menu
-context_menu = tb.Menu(root, tearoff=0)
-context_menu.add_command(label="Remove", command=delete_selected)
-
-# Entry for URL or channel
-url_entry = tb.Entry(root)
-url_entry.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky='ew')
+# Create frames
+frame1 = tb.Frame(root)
+frame1.grid(row=0, column=0, sticky='ew', padx=10, pady=10)
+frame2 = tb.Frame(root)
+frame2.grid(row=1, column=0, sticky='ew', padx=10, pady=10)
+frame3 = tb.Frame(root)
+frame3.grid(row=2, column=0, sticky='nsew', padx=10, pady=10)
 
 # Button to add URL
-add_url_button = tb.Button(root, text="Add URL", command=add_url)
-add_url_button.grid(row=0, column=2, padx=10, pady=10)
+add_url_button = tb.Button(frame1, text="Add URL", command=add_url)
+add_url_button.grid(row=0, column=0, padx=10, pady=10)  # Placed in the first column
+
+# Entry for URL or channel
+url_entry = tb.Entry(frame1)
+url_entry.grid(row=0, column=1, padx=10, pady=10, sticky='ew')  # Placed in the second column
 
 # Button to add channel
-add_channel_button = tb.Button(root, text="Add Channel", command=add_channel)
-add_channel_button.grid(row=0, column=3, padx=10, pady=10)
+add_channel_button = tb.Button(frame1, text="Add Channel", command=add_channel)
+add_channel_button.grid(row=0, column=2, padx=10, pady=10)  # Placed in the third column
+
+# Button to add file
+add_file_button = tb.Button(frame2, text="Add File", command=add_file)
+add_file_button.grid(row=0, column=0, padx=10, pady=10)  # Placed in the first column
 
 # Meter
 meter = tb.Meter(
+    frame2,
     metersize=125,
     padding=5,
     amountused=25,
@@ -126,40 +133,25 @@ meter = tb.Meter(
     subtext="similarity ratio",
 )
 meter.configure(amountused = 95)
-meter.grid(row=1, column=0, padx=10, pady=10)
-
-# Button to add file
-add_file_button = tb.Button(root, text="Add File", command=add_file)
-add_file_button.grid(row=1, column=1, padx=10, pady=10)
+meter.grid(row=0, column=1, padx=10, pady=10, sticky='ew')  # Placed in the second column
 
 # Button to delete selected item
-delete_button = tb.Button(root, text="Delete Selected", command=delete_selected)
-delete_button.grid(row=1, column=2, columnspan=3, padx=10, pady=10)
+delete_button = tb.Button(frame2, text="Delete Selected", command=delete_selected)
+delete_button.grid(row=0, column=2, padx=10, pady=10)  # Placed in the third column
 
 # List view
-sources_view = tb.Treeview(root, columns=('Source',), show='headings')
+sources_view = tb.Treeview(frame3, columns=('Source',), show='headings')
 sources_view.heading('Source', text='M3U Source')
-sources_view.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky='nsew')
+sources_view.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
 
 # Channels view
-channels_view = tb.Treeview(root, columns=('Channels',), show='headings')
+channels_view = tb.Treeview(frame3, columns=('Channels',), show='headings')
 channels_view.heading('Channels', text='Channels')
-channels_view.grid(row=2, column=2, columnspan=2, padx=10, pady=10, sticky='nsew')
-
-# Check if the file exists
-if os.path.exists('channels.txt'):
-    # Open the file
-    with open('channels.txt', 'r') as file:
-        # Read the content line by line
-        for line in file:
-            # Remove the newline character at the end of the line
-            channel_name = line.rstrip('\n')
-            # Insert the channel name into channels_view
-            channels_view.insert('', 'end', values=(channel_name,))
+channels_view.grid(row=0, column=1, padx=10, pady=10, sticky='nsew')
 
 # Generate M3U Playlist button
 generate_button = tb.Button(root, text="Generate M3U Playlist", command=on_generate_button_click)
-generate_button.grid(row=3, column=1, columnspan=2, padx=10, pady=10)
+generate_button.grid(row=3, column=0, padx=10, pady=10)
 
 # Bind the context menu to the list_view and channels_view
 sources_view.bind("<Button-3>", show_context_menu)
@@ -169,11 +161,19 @@ root.bind('<Control-v>', paste_text)
 # Bind Delete to delete_selected function
 root.bind('<Delete>', lambda event: delete_selected())
 
-# Configure the row and column weights
+# Configure the row and column weights for the root window
 root.grid_columnconfigure(0, weight=1)
-root.grid_columnconfigure(1, weight=1)
-root.grid_columnconfigure(2, weight=1)
-root.grid_columnconfigure(3, weight=1)
 root.grid_rowconfigure(2, weight=1)
+
+# Configure the row and column weights for the frames
+frame1.grid_columnconfigure(1, weight=1)
+frame2.grid_columnconfigure(1, weight=1)
+frame3.grid_columnconfigure(0, weight=1)
+frame3.grid_columnconfigure(1, weight=1)
+frame3.grid_rowconfigure(0, weight=1)
+
+# Configure the row and column weights for the list views
+sources_view.column('#0', stretch=tb.YES)
+channels_view.column('#0', stretch=tb.YES)
 
 root.mainloop()
