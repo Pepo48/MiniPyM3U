@@ -94,6 +94,15 @@ def show_context_menu(event):
     context_menu.add_command(label="Paste Text", command=lambda: paste_text(event))  # Add paste_text command
     context_menu.post(event.x_root, event.y_root)
 
+# Function to clear the selection in the Treeviews
+def deselect(event, sources_treeview, channels_treeview):
+    # Get the item under the cursor
+    item = sources_treeview.identify('item', event.x, event.y)
+    # If the item is empty, clear the selection in both treeviews
+    if not item:
+        sources_treeview.selection_remove(sources_treeview.selection())
+        channels_treeview.selection_remove(channels_treeview.selection())
+
 root = tb.Window(themename='lumen')  # Change the theme
 root.geometry('800x600')
 root.title('MiniPyM3U')
@@ -171,6 +180,9 @@ generate_button.grid(row=3, column=0, padx=10, pady=10)
 # Bind the context menu to the list_view and channels_view
 sources_view.bind("<Button-3>", show_context_menu)
 channels_view.bind("<Button-3>", show_context_menu)
+# Bind the deselect function to the Treeviews
+sources_view.bind('<Button-1>', lambda event: deselect(event, sources_view, channels_view))
+channels_view.bind('<Button-1>', lambda event: deselect(event, channels_view, sources_view))
 # Bind Ctrl+V to paste_text function
 root.bind('<Control-v>', paste_text)
 # Bind Delete to delete_selected function
