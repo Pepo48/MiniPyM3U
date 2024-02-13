@@ -1,6 +1,6 @@
 # Project files
 output_*.m3u
-channels.txt
+conf.yaml
 
 # Byte-compiled / optimized / DLL files
 **/__pycache__/
