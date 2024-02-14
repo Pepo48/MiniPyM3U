@@ -1,0 +1,14 @@
+channels:
+  - TNT Sports
+  - BT Sports
+  - Premier Sports
+  - Peacock
+  - Sky Sports
+  - SuperSport
+  - BBC One
+
+ssh:
+  host: 127.0.0.1:22
+  user: root
+  password: password
+  remote_path: /var/www/html/
