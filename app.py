@@ -2,7 +2,38 @@ from PIL import Image
 Image.CUBIC = Image.BICUBIC
 from tkinter import filedialog, TclError, font as tkFont
 import ttkbootstrap as tb
-import subprocess, os, yaml, datetime
+import subprocess, os, yaml, datetime, paramiko
+
+# TODO: Refactor: Function to send files
+def send_files():
+    # Open a file dialog to select the files
+    file_paths = filedialog.askopenfilenames(filetypes=[('M3U files', '*.m3u')], defaultextension='.m3u')
+    
+    # Read the parameters from conf.yaml
+    with open('conf.yaml', 'r') as f:
+        conf = yaml.safe_load(f)
+    ssh_conf = conf.get('ssh', {})
+    hostname = ssh_conf.get('host')
+    username = ssh_conf.get('user')
+    password = ssh_conf.get('password')
+    remote_path = ssh_conf.get('remote_path')
+
+    # Create a new SSH client
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname, username=username, password=password)
+
+    # Create a new SFTP client
+    sftp = ssh.open_sftp()
+
+    # Send the files
+    for file_path in file_paths:
+        filename = os.path.basename(file_path)
+        sftp.put(file_path, os.path.join(remote_path, filename))
+
+    # Close the SFTP and SSH clients
+    sftp.close()
+    ssh.close()
 
 def on_generate_button_click():
 
@@ -173,6 +204,10 @@ if os.path.exists('conf.yaml'):
 # Generate M3U Playlist button
 generate_button = tb.Button(root, text="Generate M3U Playlist", command=on_generate_button_click)
 generate_button.grid(row=3, column=0, padx=10, pady=10)
+
+# Send files button
+send_files_button = tb.Button(root, text="Send Files", command=send_files)
+send_files_button.grid(row=4, column=0, padx=10, pady=10)
 
 # Bind the context menu to the list_view and channels_view
 sources_view.bind("<Button-3>", show_context_menu)
