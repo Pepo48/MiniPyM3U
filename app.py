@@ -4,19 +4,26 @@ from tkinter import filedialog, TclError, font as tkFont
 import ttkbootstrap as tb
 import subprocess, os, yaml, datetime, paramiko
 
-# TODO: Refactor: Function to send files
+# TODO: Refactor: Separate the business logic from the GUI code
 def send_files():
     # Open a file dialog to select the files
     file_paths = filedialog.askopenfilenames(filetypes=[('M3U files', '*.m3u')], defaultextension='.m3u')
     
+    # Get the directory where app.py is located
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Get the path to conf.yaml relative to app_dir
+    conf_path = os.path.join(app_dir, 'conf.yaml')
+
     # Read the parameters from conf.yaml
-    with open('conf.yaml', 'r') as f:
-        conf = yaml.safe_load(f)
-    ssh_conf = conf.get('ssh', {})
-    hostname = ssh_conf.get('host')
-    username = ssh_conf.get('user')
-    password = ssh_conf.get('password')
-    remote_path = ssh_conf.get('remote_path')
+    if os.path.exists(conf_path):
+        with open(conf_path, 'r') as f:
+            conf = yaml.safe_load(f)
+        ssh_conf = conf.get('ssh', {})
+        hostname = ssh_conf.get('host')
+        username = ssh_conf.get('user')
+        password = ssh_conf.get('password')
+        remote_path = ssh_conf.get('remote_path')
 
     # Create a new SSH client
     ssh = paramiko.SSHClient()
@@ -134,6 +141,27 @@ def deselect(event, sources_treeview, channels_treeview):
         sources_treeview.selection_remove(sources_treeview.selection())
         channels_treeview.selection_remove(channels_treeview.selection())
 
+def select_all(event):
+    # Get the widget that currently has focus
+    active_treeview = root.focus_get()
+    # If the active widget is one of the Treeviews, select all items
+    if active_treeview in [sources_view, channels_view]:
+        active_treeview.selection_set(active_treeview.get_children())
+
+def load_channels():
+    # Get the directory where app.py is located
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    # Get the path to conf.yaml relative to app_dir
+    conf_path = os.path.join(app_dir, 'conf.yaml')
+
+    # Load the configuration from conf.yaml if it exists
+    if os.path.exists(conf_path):
+        with open(conf_path, 'r') as f:
+            conf = yaml.safe_load(f)
+            channels = conf.get('channels', [])
+            for channel in channels:
+                channels_view.insert('', 'end', values=(channel,))
+
 root = tb.Window(themename='lumen')  # Change the theme
 root.geometry('800x600')
 root.title('MiniPyM3U')
@@ -193,13 +221,8 @@ channels_view = tb.Treeview(frame3, columns=('Channels',), show='headings')
 channels_view.heading('Channels', text='Channels')
 channels_view.grid(row=0, column=1, padx=10, pady=10, sticky='nsew')
 
-# Check if the conf file exists
-if os.path.exists('conf.yaml'):
-    with open('conf.yaml', 'r') as f:
-        conf = yaml.safe_load(f)
-        channels = conf.get('channels', [])
-        for channel in channels:
-            channels_view.insert('', 'end', values=(channel,))
+# Load the configuration from conf.yaml if it exists
+load_channels()
 
 # Generate M3U Playlist button
 generate_button = tb.Button(root, text="Generate M3U Playlist", command=on_generate_button_click)
@@ -219,6 +242,8 @@ channels_view.bind('<Button-1>', lambda event: deselect(event, channels_view, so
 root.bind('<Control-v>', paste_text)
 # Bind Delete to delete_selected function
 root.bind('<Delete>', lambda event: delete_selected())
+# Bind Ctrl+A to select_all function
+root.bind('<Control-a>', select_all)
 
 # Configure the row and column weights for the root window
 root.grid_columnconfigure(0, weight=1)
