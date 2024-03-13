@@ -109,18 +109,41 @@ def delete_selected():
     for item in selected_items_channels_view:
         channels_view.delete(item)
 
+def copy_selected():
+    # Get selected items
+    selected_items_sources_view = sources_view.selection()
+    selected_items_channels_view = channels_view.selection()
+
+    # Initialize an empty list to store the values
+    copied_values = []
+
+    # Get the values of the selected items from sources_view
+    for item in selected_items_sources_view:
+        values = sources_view.item(item, 'values')
+        copied_values.append(', '.join(str(v) for v in values))
+
+    # Get the values of the selected items from channels_view
+    for item in selected_items_channels_view:
+        values = channels_view.item(item, 'values')
+        copied_values.append(', '.join(str(v) for v in values))
+
+    # Join the values with a newline character and copy to clipboard
+    root.clipboard_clear()
+    root.clipboard_append('\n'.join(copied_values))
+
 # Function to paste text from the clipboard
 def paste_text(event):
     try:
         text = root.clipboard_get()
-        # Split the text at the newline character and only use the first part
-        text = text.split('\n')[0]
-        url_entry.delete(0, 'end')
-        url_entry.insert(0, text)
-        if event.widget == sources_view:
-            add_url()  # Call add_url if the event occurred on list_view
-        elif event.widget == channels_view:
-            add_channel()  # Call add_channel if the event occurred on channels_view
+        # Split the text at the newline character
+        text_list = text.split('\n')
+        for text in text_list:
+            url_entry.delete(0, 'end')
+            url_entry.insert(0, text)
+            if event.widget == sources_view:
+                add_url()  # Call add_url if the event occurred on list_view
+            elif event.widget == channels_view:
+                add_channel()  # Call add_channel if the event occurred on channels_view
     except TclError:
         pass  # No text in the clipboard
 
@@ -129,7 +152,8 @@ def show_context_menu(event):
     # Create a context menu
     context_menu = tb.Menu(root, tearoff=0)
     context_menu.add_command(label="Remove", command=delete_selected)
-    context_menu.add_command(label="Paste Text", command=lambda: paste_text(event))  # Add paste_text command
+    context_menu.add_command(label="Copy", command=copy_selected)
+    context_menu.add_command(label="Paste", command=lambda: paste_text(event))  
     context_menu.post(event.x_root, event.y_root)
 
 # Function to clear the selection in the Treeviews
@@ -242,6 +266,8 @@ channels_view.bind('<Button-1>', lambda event: deselect(event, channels_view, so
 root.bind('<Control-v>', paste_text)
 # Bind Delete to delete_selected function
 root.bind('<Delete>', lambda event: delete_selected())
+# Bind Ctrl+C to copy_selected function
+root.bind('<Control-c>', lambda event: copy_selected())
 # Bind Ctrl+A to select_all function
 root.bind('<Control-a>', select_all)
 
