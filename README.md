@@ -12,6 +12,12 @@ To install the required dependencies, run the following command:
 pip install -r requirements.txt
 ```
 
+Alternatively, to force the upgrade of the dependencies, use the following command:
+
+```sh
+pip install --upgrade --force-reinstall -r requirements.txt
+```
+
 ## Usage
 
 You can either run the GUI application or the script via the terminal.
