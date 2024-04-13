@@ -61,9 +61,12 @@ def on_generate_button_click():
     files_str = ' '.join(f'"{file}"' for file in sources)
     channel_names_str = ' '.join(f'"{channel_name}"' for channel_name in channel_names)
 
+    # Get the directory of the current file (app.py)
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+
     # Prepare the command
     command = [
-        "python", "m3u.py",
+        "python", os.path.join(dir_path, "m3u.py"),
         "--urls", files_str,
         "--channel-names", channel_names_str,
         "--similarity-ratio", str(similarity_ratio),
