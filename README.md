@@ -30,7 +30,7 @@ To run the GUI, use the following command:
 python app.py
 ```
 
-### Script
+### m3u.py Script
 
 To run the script, use the following command:
 
@@ -49,6 +49,20 @@ python m3u.py -f file1.m3u file2.m3u -c channel1 channel2 -o output.m3u
 -d, --debug: Enable debug info
 ```
 
+### m3u_url_parser.py Script
+
+To run the script, use the following command:
+
+```sh
+python m3u_url_parser.py --text "Your text containing M3U/M3U8 URLs" --skip-duplicates
+```
+
+#### Arguments
+
+```
+-t, --text: The text containing M3U/M3U8 URLs
+--skip-duplicates: Skip duplicate URLs originating from the same domain
+```
 
 ## Testing
 

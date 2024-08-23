@@ -1,3 +1,5 @@
+from m3u_url_parser import parse_m3u_urls  
+
 from PIL import Image
 Image.CUBIC = Image.BICUBIC
 from tkinter import filedialog, TclError, font as tkFont
@@ -138,11 +140,11 @@ def copy_selected():
 def paste_text(event):
     try:
         text = root.clipboard_get()
-        # Split the text at the newline character
-        text_list = text.split('\n')
-        for text in text_list:
+        # Parse the text to extract M3U/M3U8 URLs
+        urls = parse_m3u_urls(text, skip_duplicates=True)
+        for url in urls:
             url_entry.delete(0, 'end')
-            url_entry.insert(0, text)
+            url_entry.insert(0, url)
             if event.widget == sources_view:
                 add_url()  # Call add_url if the event occurred on list_view
             elif event.widget == channels_view:
