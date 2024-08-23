@@ -73,21 +73,22 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: ./artifacts
+        merge-multiple: true
 
     - name: Upload Release Assets
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        if [ -f "./artifacts/executable-ubuntu-latest/app" ]; then
-          echo "Uploading ./artifacts/executable-ubuntu-latest/app"
-          gh release upload latest "./artifacts/executable-ubuntu-latest/app" --clobber
+        if [ -f "./artifacts/app" ]; then
+          echo "Uploading ./artifacts/app"
+          gh release upload latest "./artifacts/app" --clobber
         else
-          echo "No app file found in ./artifacts/executable-ubuntu-latest."
+          echo "No app file found in ./artifacts"
         fi
 
-        if [ -f "./artifacts/executable-windows-latest/app.exe" ]; then
-          echo "Uploading ./artifacts/executable-windows-latest/app.exe"
-          gh release upload latest "./artifacts/executable-windows-latest/app.exe" --clobber
+        if [ -f "./artifacts/app.exe" ]; then
+          echo "Uploading ./artifacts/app.exe"
+          gh release upload latest "./artifacts/app.exe" --clobber
         else
-          echo "No app.exe file found in ./artifacts/executable-windows-latest."
+          echo "No app.exe file found in ./artifacts"
         fi
