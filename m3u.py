@@ -10,12 +10,21 @@ def check_m3u_files(m3u_files, channel_names, similarity_ratio):
                 response = urllib.request.urlopen(file)
             except urllib.error.HTTPError as e:
                 if e.code == 404:
-                    logging.info(f"The file {file} was not found.")
+                    logging.info(f"The file {file} was not found. HTTPError: {e}")
                 else:
-                    logging.debug(f"An HTTP error occurred when trying to access {file}.")
+                    logging.debug(f"An HTTP error occurred when trying to access {file}. HTTPError: {e}")
                 continue
             except urllib.error.URLError as e:
-                logging.debug(f"A URL error occurred when trying to access {file}.")
+                logging.debug(f"A URL error occurred when trying to access {file}. URLError: {e}")
+                continue
+            except ConnectionResetError as e:
+                if e.winerror == 10054:
+                    logging.debug(f"Connection reset error: {e}")
+                else:
+                    logging.debug(f"An unexpected connection error occurred: {e}")
+                continue
+            except Exception as e:
+                logging.error(f"An unexpected error occurred: {e}")
                 continue
             else:
                 data = response.read()      # a `bytes` object
@@ -23,8 +32,15 @@ def check_m3u_files(m3u_files, channel_names, similarity_ratio):
                 lines = text.split('\n')
         else:
             # If the file is a file path, read it
-            with open(file, 'r') as f:
-                lines = f.readlines()
+            try:
+                with open(file, 'r') as f:
+                    lines = f.readlines()
+            except FileNotFoundError as e:
+                logging.info(f"The file {file} was not found. FileNotFoundError: {e}")
+                continue
+            except Exception as e:
+                logging.error(f"An unexpected error occurred while reading the file {file}: {e}")
+                continue
 
         record = []
         for line in lines:
