@@ -20,7 +20,7 @@ pip install --upgrade --force-reinstall -r requirements.txt
 
 ## Usage
 
-You can either run the GUI application or the script via the terminal.
+You can either run the GUI application or the scripts directly.
 
 ### GUI
 
@@ -62,6 +62,14 @@ python m3u_url_parser.py --text "Your text containing M3U/M3U8 URLs" --skip-dupl
 ```
 -t, --text: The text containing M3U/M3U8 URLs
 --skip-duplicates: Skip duplicate URLs originating from the same domain
+```
+
+## Building the Executable
+
+To build the executable, use the following command:
+
+```sh
+pyinstaller --onefile --add-data="m3u.py:." --add-data="m3u_url_parser.py:." app.py
 ```
 
 ## Testing

@@ -4,7 +4,7 @@ from PIL import Image
 Image.CUBIC = Image.BICUBIC
 from tkinter import filedialog, TclError, font as tkFont
 import ttkbootstrap as tb
-import subprocess, os, yaml, datetime, paramiko
+import subprocess, os, sys, yaml, datetime, paramiko
 
 # TODO: Refactor: Separate the business logic from the GUI code
 def send_files():
@@ -178,10 +178,13 @@ def select_all(event):
         active_treeview.selection_set(active_treeview.get_children())
 
 def load_channels():
-    # Get the directory where app.py is located
-    app_dir = os.path.dirname(os.path.abspath(__file__))
-    # Get the path to conf.yaml relative to app_dir
-    conf_path = os.path.join(app_dir, 'conf.yaml')
+    # Determine the path to conf.yaml next to the executable
+    if getattr(sys, 'frozen', False):
+        # If running as a bundled executable, use the directory of the executable
+        conf_path = os.path.join(os.path.dirname(sys.executable), 'conf.yaml')
+    else:
+        # If running as a script, use the directory of the script
+        conf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'conf.yaml')
 
     # Load the configuration from conf.yaml if it exists
     if os.path.exists(conf_path):
